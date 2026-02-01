@@ -345,7 +345,7 @@ export default function Page() {
               alt="Love Animation"
             />
             <h1 className="text-4xl md:text-6xl my-4 text-center">
-              Will you be my Valentine?
+               Will you be mine forever, meri rasmalai meri jaan Sadiya? 😘💞?
             </h1>
             <div className="flex flex-wrap justify-center gap-2 items-center">
               <button
@@ -401,7 +401,7 @@ const Footer = () => {
       <span role="img" aria-label="heart">
         ❤️
       </span>
-      {" "}by Ujjwal
+      {" "} NOTHING
     </a>
   );
 };
