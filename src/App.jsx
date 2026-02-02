@@ -1,10 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import Spline from "@splinetool/react-spline";
+import Swal from "sweetalert2";
 import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
+import MouseStealing from './MouseStealer.jsx';
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
+import heartGif from "./assets/GifData/happy.gif";
+import sadGif from "./assets/GifData/sad.gif";
+import WordMareque from './MarqueeProposal.jsx';
+import purposerose from './assets/GifData/RoseCute.gif';
+import swalbg from './assets/Lovingbg2_main.jpg';
+import loveu from './assets/GifData/cutieSwal4.gif';
 
+//! yes - Gifs Importing
 import yesgif0 from "./assets/GifData/Yes/lovecutie0.gif";
 import yesgif1 from "./assets/GifData/Yes/love2.gif";
 import yesgif2 from "./assets/GifData/Yes/love3.gif";
@@ -15,7 +24,9 @@ import yesgif6 from "./assets/GifData/Yes/lovecutie7.gif";
 import yesgif7 from "./assets/GifData/Yes/lovecutie8.gif";
 import yesgif8 from "./assets/GifData/Yes/lovecutie3.gif";
 import yesgif9 from "./assets/GifData/Yes/lovecutie9.gif";
-
+import yesgif10 from "./assets/GifData/Yes/lovecutie6.gif";
+import yesgif11 from "./assets/GifData/Yes/lovecutie4.gif";
+//! no - Gifs Importing
 import nogif0 from "./assets/GifData/No/breakRej0.gif";
 import nogif0_1 from "./assets/GifData/No/breakRej0_1.gif";
 import nogif1 from "./assets/GifData/No/breakRej1.gif";
@@ -25,22 +36,24 @@ import nogif4 from "./assets/GifData/No/breakRej4.gif";
 import nogif5 from "./assets/GifData/No/breakRej5.gif";
 import nogif6 from "./assets/GifData/No/breakRej6.gif";
 import nogif7 from "./assets/GifData/No/RejectNo.gif";
+import nogif8 from "./assets/GifData/No/breakRej7.gif";
 
+//! yes - Music Importing
 import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
 import yesmusic2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
+import yesmusic3 from "./assets/AudioTracks/Love_Nadaaniyan.mp3";
+import yesmusic4 from "./assets/AudioTracks/Love_JoTumMereHo.mp3";
+//! no - Music Importing
 import nomusic1 from "./assets/AudioTracks/Rejection_WeDontTalkAnyMore.mp3";
-import nomusic2 from "./assets/AudioTracks/Reject_withoutMe.mp3";
-import nomusic3 from "./assets/AudioTracks/Neutral_Base_IHateU.mp3";
-import nomusic4 from "./assets/AudioTracks/Reject1_TooGood.mp3";
+import nomusic2 from "./assets/AudioTracks/Rejection_LoseYouToLoveMe.mp3";
+import nomusic3 from "./assets/AudioTracks/Reject_withoutMe.mp3";
+import nomusic4 from "./assets/AudioTracks/Neutral_Base_IHateU.mp3";
+import nomusic5 from "./assets/AudioTracks/Reject1_TooGood.mp3";
 
-// import heartGif from "./assets/GifData/Heart.gif";
-import heartGif from "./assets/GifData/Happy.gif";
-import sadGif from "./assets/GifData/sad.gif";
-
-const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9];
-const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7];
-const YesMusic = [yesmusic1, yesmusic2];
-const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4];
+const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9, yesgif10, yesgif11];
+const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7, nogif8];
+const YesMusic = [yesmusic1, yesmusic3, yesmusic4, yesmusic2];
+const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4, nomusic5];
 
 export default function Page() {
   const [noCount, setNoCount] = useState(0);
@@ -48,9 +61,11 @@ export default function Page() {
   const [currentAudio, setCurrentAudio] = useState(null); // Tracks the currently playing song
   const [currentGifIndex, setCurrentGifIndex] = useState(0); // Track the current gif index
   const [isMuted, setIsMuted] = useState(false);
+  const [popupShown, setPopupShown] = useState(false);
+  const [yespopupShown, setYesPopupShown] = useState(false);
 
   const gifRef = useRef(null); // Ref to ensure gif plays infinitely
-  const yesButtonSize = noCount * 20 + 16;
+  const yesButtonSize = noCount * 16 + 16;
 
   const [floatingGifs, setFloatingGifs] = useState([]); // Array to store active floating GIFs
   const generateRandomPositionWithSpacing = (existingPositions) => {
@@ -122,14 +137,14 @@ export default function Page() {
 
   // This ensures the "Yes" gif keeps restarting and playing infinitely
   useEffect(() => {
-    if (gifRef.current && yesPressed) {
+    if (gifRef.current && yesPressed && noCount>3) {
       gifRef.current.src = YesGifs[currentGifIndex];
     }
   }, [yesPressed, currentGifIndex]);
 
   // Use effect to change the Yes gif every 5 seconds
   useEffect(() => {
-    if (yesPressed) {
+    if (yesPressed && noCount>3) {
       const intervalId = setInterval(() => {
         setCurrentGifIndex((prevIndex) => (prevIndex + 1) % YesGifs.length);
       }, 5000); // Change gif every 5 seconds
@@ -159,23 +174,33 @@ export default function Page() {
     // Play song on first press or every 7th press after
     if (nextCount === 1 || (nextCount - 1) % 7 === 0) {
       const nextSongIndex = Math.floor(nextCount / 7) % NoMusic.length;
-      playMusic(NoMusic[nextSongIndex]);
+      playMusic(NoMusic[nextSongIndex], NoMusic);
     }
   };
-
+  
   const handleYesClick = () => {
-    setYesPressed(true);
-    playMusic(YesMusic[0]); // Play the first "Yes" music by default
+    if(!popupShown){ // Only for Swal Fire Popup
+      setYesPressed(true);
+    }
+    if(noCount>3){
+      setYesPressed(true);
+      playMusic(YesMusic[0], YesMusic); // Play the first "Yes" music by default
+    }
   };
-
-  const playMusic = (url) => {
+  
+  const playMusic = (url, musicArray) => {
     if (currentAudio) {
       currentAudio.pause(); // Stop the currently playing song
       currentAudio.currentTime = 0; // Reset to the start
     }
     const audio = new Audio(url);
-    audio.muted = isMuted; // Respect the mute state
+    audio.muted = isMuted;
     setCurrentAudio(audio); // Set the new audio as the current one
+    audio.addEventListener('ended', () => {
+      const currentIndex = musicArray.indexOf(url);
+      const nextIndex = (currentIndex + 1) % musicArray.length;
+      playMusic(musicArray[nextIndex], musicArray); // Play the next song in the correct array
+    });
     audio.play();
   };
 
@@ -219,14 +244,82 @@ export default function Page() {
     return phrases[Math.min(noCount, phrases.length - 1)];
   };
 
+  useEffect(() => {
+    if (yesPressed && noCount < 4 && !popupShown) {
+      Swal.fire({
+        title: "I love you sooo Much!!!❤️, You’ve stolen my heart completely!!! 🥰💖 But itni pyaari ladki aur itni jaldi haan? Thoda aur nakhre karke mujhe tarpaao na! 🥰✨",
+        showClass: {
+          popup: `
+            animate__animated
+            animate__fadeInUp
+            animate__faster
+          `
+        },
+        width: 700,
+        padding: "2em",
+        color: "#716add",
+        background: `#fff url(${swalbg})`,
+        backdrop: `
+          rgba(0,0,123,0.2)
+          url(${loveu})
+          right
+          no-repeat
+        `,
+      });
+      setPopupShown(true);
+      setYesPressed(false);
+    }
+  }, [yesPressed, noCount, popupShown]);
+  
+  useEffect(() => {
+    if (yesPressed && noCount > 3 && !yespopupShown) {
+      Swal.fire({
+        title: "I love you so much!! ❤️ You are my everything, my joy, my forever. Every moment with you is a memory I’ll cherish forever, and my heart beats only for you.</br> Will you be the love of my life forever?",
+        width: 800,
+        padding: "2em",
+        color: "#716add",
+        background: `#fff url(${swalbg})`,
+        backdrop: `
+          rgba(0,0,123,0.7)
+          url(${purposerose})
+          right
+          no-repeat
+        `,
+      });
+      setYesPopupShown(true);
+      setYesPressed(true);
+    }
+  }, [yesPressed, noCount, yespopupShown]);
+
+  useEffect(() => {
+    if (noCount == 25) {
+      Swal.fire({
+        title: "My love for you is endless, like the stars in the sky—shining for you every night, even if you don’t always notice. 🌟 I’ll wait patiently, proving every day that you’re my everything. ❤️ Please press ‘Yes’ and let’s make this a forever story. 🥰✨<br/>'True love never gives up; it grows stronger with time.'",
+        width: 850,
+        padding: "2em",
+        color: "#716add",
+        background: `#fff url(${swalbg})`,
+        backdrop: `
+          rgba(0, 104, 123, 0.7)
+          url(${nogif1})
+          right
+          no-repeat
+        `,
+      });
+    }
+  }, [noCount]);
+
   return (
     <>
       <div className="fixed top-0 left-0 w-screen h-screen -z-10">
         <Spline scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode" />
         {/* <Spline scene="https://prod.spline.design/ZU2qkrU9Eyt1PHBx/scene.splinecode" /> */}
       </div>
+
+      {noCount > 16 && noCount < 25 && yesPressed == false && <MouseStealing />}
+
       <div className="overflow-hidden flex flex-col items-center justify-center pt-4 h-screen -mt-16 selection:bg-rose-600 selection:text-white text-zinc-900">
-        {yesPressed ? (
+        {yesPressed && noCount>3 ? (
           <>
             <img
               ref={gifRef}
@@ -234,7 +327,9 @@ export default function Page() {
               src={YesGifs[currentGifIndex]}
               alt="Yes Response"
             />
-            <div className="text-4xl md:text-6xl font-bold my-4">Ok Yayyyyy!!!</div>
+            <div className="text-4xl md:text-6xl font-bold my-2" style={{ fontFamily: "Charm, serif", fontWeight: "700", fontStyle: "normal" }}>I Love You !!!</div>
+            <div  className="text-4xl md:text-4xl font-bold my-1" style={{ fontFamily: "Beau Rivage, serif", fontWeight: "500", fontStyle: "normal" }}> You’re the love of my life. </div> 
+            <WordMareque />
           </>
         ) : (
           <>
