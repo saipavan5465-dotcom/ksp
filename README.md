@@ -1,3 +1,8 @@
-## License
+CC0 1.0 Universal
 
-This project is released into the public domain under the CC0 1.0 Universal license.
+This work has been dedicated to the public domain under the Creative Commons CC0 1.0 Universal license.
+
+You can copy, modify, distribute, and perform the work, even for commercial purposes, all without asking permission.
+
+For more information, see:
+https://creativecommons.org/publicdomain/zero/1.0/
